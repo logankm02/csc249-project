@@ -3,6 +3,7 @@ import numpy as np
 import os
 from sklearn.cluster import MiniBatchKMeans
 from sklearn.metrics.pairwise import cosine_similarity
+from glob import glob
 import pickle
 
 def extract_sift_descriptors(image_path, sift=None):
@@ -32,3 +33,33 @@ def save_pickle(obj, path):
 def load_pickle(path):
     with open(path, 'rb') as f:
         return pickle.load(f)
+
+DATASET_DIR = 'caltech-101'
+VOCAB_SIZE = 500
+
+if __name__ == "__main__":
+    # Step 1: Collect and extract SIFT descriptors
+    image_paths = glob(os.path.join(DATASET_DIR, '*/*.jpg'))
+    descriptor_list = []
+    image_histograms = []
+    sift = cv2.SIFT_create()
+
+    for img_path in image_paths:
+        print(img_path)
+        desc = extract_sift_descriptors(img_path, sift)
+        if desc is not None:
+            descriptor_list.append(desc)
+        else:
+            print(f"Warning: No descriptors found for {img_path}")
+
+    # Step 2: Build visual vocabulary
+    kmeans = build_vocabulary(descriptor_list, vocab_size=VOCAB_SIZE)
+    save_pickle(kmeans, 'kmeans_vocab.pkl')
+
+    # Step 3: Compute and store histograms
+    for img_path in image_paths:
+        desc = extract_sift_descriptors(img_path, sift)
+        hist = compute_bovw_histogram(desc, kmeans)
+        image_histograms.append(hist)
+
+    save_pickle((image_paths, image_histograms), 'db_histograms.pkl')
