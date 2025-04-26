@@ -2,3 +2,6 @@ opencv-contrib-python
 opencv-python
 numpy
 scikit-learn
+torch
+torchvision
+tqdm
