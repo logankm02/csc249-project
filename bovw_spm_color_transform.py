@@ -11,6 +11,7 @@ from sklearn.svm import LinearSVC
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, accuracy_score
 
+# Save & Load Helpers
 def save_pickle(obj, path):
     with open(path, 'wb') as f:
         pickle.dump(obj, f)
@@ -19,6 +20,7 @@ def load_pickle(path):
     with open(path, 'rb') as f:
         return pickle.load(f)
 
+# RootSIFT
 def rootsift(descriptors):
     eps = 1e-7
     desc_l1 = descriptors / (np.linalg.norm(descriptors, ord=1, axis=1, keepdims=True) + eps)
@@ -30,6 +32,7 @@ def compute_color_hist(image_bgr, bins=(8,8,8)):
     hist = hist.flatten().astype(np.float32)
     return hist / (hist.sum() + 1e-7)
 
+# Transformation Helpers
 def apply_transformation(image_path, transform_type):
     image = Image.open(image_path).convert('RGB')
     if transform_type == 'rotate':
@@ -45,6 +48,7 @@ def apply_transformation(image_path, transform_type):
         image = Image.fromarray(noisy)
     return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
 
+# Spatial Pyramid BOW with Soft Assignment
 class SoftSPMBOW:
     def __init__(self, vocab_size=2000, levels=(0,1,2), use_rootsift=True, soft_k=3, batch_size=10000):
         self.vocab_size = vocab_size
@@ -120,6 +124,7 @@ class SoftSPMBOW:
     def apply_idf(self, X):
         return normalize(X * self.idf, norm='l2')
 
+# Main Script
 if __name__ == '__main__':
     DATA_DIR = 'caltech-101'
     VOCAB_SIZE = 2000

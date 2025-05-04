@@ -54,6 +54,7 @@ def compute_bovw_histogram(descriptors, kmeans):
     histogram, _ = np.histogram(words, bins=np.arange(kmeans.n_clusters + 1))
     return histogram.astype("float32") / (histogram.sum() + 1e-6)
 
+# Save & Load Helpers
 def save_pickle(obj, path):
     with open(path, 'wb') as f:
         pickle.dump(obj, f)
