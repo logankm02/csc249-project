@@ -163,16 +163,17 @@ if __name__ == "__main__":
     print(classification_report(y_test, y_pred))
     print("Accuracy:", accuracy_score(y_test, y_pred))
 
-    # 🔁 Evaluate on Transformed Versions
+    # Evaluate on Transformed Images
     transform_types = ['rotate', 'hflip', 'brightness', 'gaussian_noise']
     for t_type in transform_types:
-        print(f"\n🔄 Evaluating with transformation: {t_type}")
+        print(f"\nEvaluating with transformation: {t_type}")
         X_test_trans = spm.transform(X_test, transform_type=t_type)
         X_test_trans_tfidf = spm.apply_idf(X_test_trans)
         y_pred_trans = svc.predict(X_test_trans_tfidf)
         print(classification_report(y_test, y_pred_trans))
         print(f"Accuracy ({t_type}):", accuracy_score(y_test, y_pred_trans))
 
+    # Save model
     save_pickle({'kmeans': spm.kmeans, 'idf': spm.idf, 'svm': svc}, 'bow_spm_svm_model.pkl')
 
 # OG Accuracy: 0.4417714598141061

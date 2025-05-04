@@ -151,20 +151,21 @@ if __name__ == '__main__':
     print("Best C:", svc.best_params_)
 
     y_pr = svc.predict(X_te_tfidf)
-    print("\n🧪 Original Evaluation:")
+    print("\nOriginal Evaluation:")
     print(classification_report(y_te, y_pr))
     print("Accuracy:", accuracy_score(y_te, y_pr))
 
-    # 🔁 Evaluate on Transformed Images
+    # Evaluate on Transformed Images
     transform_types = ['rotate', 'hflip', 'brightness', 'gaussian_noise']
     for t in transform_types:
         X_te_trans = model.transform(X_te, transform_type=t)
         X_te_trans_tfidf = model.apply_idf(X_te_trans)
         y_pred_trans = svc.predict(X_te_trans_tfidf)
-        print(f"\n🔄 Evaluation with transformation: {t}")
+        print(f"\nEvaluation with transformation: {t}")
         print(classification_report(y_te, y_pred_trans))
         print(f"Accuracy ({t}):", accuracy_score(y_te, y_pred_trans))
 
+    # Save model
     save_pickle({'kmeans': model.kmeans, 'idf': model.idf, 'svm': svc}, 'model_soft_color.pkl')
 
 # OG Accuracy: 0.5390924002186988

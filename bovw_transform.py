@@ -11,9 +11,7 @@ import pickle
 from pathlib import Path
 from PIL import Image, ImageEnhance
 
-# ==========================
 # Transformation Helpers
-# ==========================
 def apply_transformation(image_path, transform_type='rotate'):
     image = Image.open(image_path).convert('RGB')
     if transform_type == 'rotate':
@@ -29,9 +27,7 @@ def apply_transformation(image_path, transform_type='rotate'):
         image = Image.fromarray(noisy)
     return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
 
-# ==========================
 # BoVW + SIFT Pipeline
-# ==========================
 def extract_sift_descriptors(image_path, sift=None, transformed=False, transform_type=None):
     if sift is None:
         sift = cv2.SIFT_create()
@@ -66,9 +62,7 @@ def load_pickle(path):
     with open(path, 'rb') as f:
         return pickle.load(f)
 
-# ==========================
 # Main Script
-# ==========================
 DATASET_DIR = 'caltech-101'
 VOCAB_SIZE = 500
 SELECTED_CLASSES = []
@@ -84,14 +78,14 @@ if __name__ == "__main__":
     valid_image_paths = []
     sift = cv2.SIFT_create()
 
-    print("📸 Extracting SIFT features...")
+    print("Extracting SIFT features...")
     for img_path in image_paths:
         desc = extract_sift_descriptors(img_path, sift)
         if desc is not None:
             descriptor_list.append(desc)
             valid_image_paths.append(img_path)
         else:
-            print(f"⚠️ No descriptors for: {img_path}")
+            print(f"No descriptors for: {img_path}")
 
     print("🔨 Building visual vocabulary...")
     kmeans = build_vocabulary(descriptor_list, vocab_size=VOCAB_SIZE)
@@ -114,7 +108,7 @@ if __name__ == "__main__":
         X, y, valid_image_paths, test_size=0.2, random_state=42
     )
 
-    print("\n🧠 Training SVM with GridSearchCV...")
+    print("\nTraining SVM with GridSearchCV...")
     svc = GridSearchCV(
         LinearSVC(max_iter=20000, class_weight='balanced'),
         {'C': [0.01, 0.1, 1, 10]},
@@ -122,21 +116,19 @@ if __name__ == "__main__":
         n_jobs=-1
     )
     svc.fit(X_train, y_train)
-    print("✅ Best C:", svc.best_params_)
+    print("Best C:", svc.best_params_)
 
-    print("\n🧪 Evaluating on original test images...")
+    print("\nEvaluating on original test images...")
     y_pred = svc.predict(X_test)
     print(classification_report(y_test, y_pred, target_names=le.classes_))
-    print("🎯 Accuracy (Original):", accuracy_score(y_test, y_pred))
+    print("Accuracy (Original):", accuracy_score(y_test, y_pred))
 
-    # ==========================
     # Evaluate on Transformed Images
-    # ==========================
     transform_types = ['rotate', 'hflip', 'brightness', 'gaussian_noise']
-    print("\n🧪 Evaluating on transformed test images...")
+    print("\nEvaluating on transformed test images...")
 
     for t_type in transform_types:
-        print(f"\n🔄 Transformation: {t_type}")
+        print(f"\nTransformation: {t_type}")
         transformed_histograms = []
         for path in path_test:
             desc = extract_sift_descriptors(path, sift, transformed=True, transform_type=t_type)
@@ -145,13 +137,13 @@ if __name__ == "__main__":
         X_transformed = np.array(transformed_histograms)
         y_pred_transformed = svc.predict(X_transformed)
         print(classification_report(y_test, y_pred_transformed, target_names=le.classes_))
-        print(f"🎯 Accuracy ({t_type}):", accuracy_score(y_test, y_pred_transformed))
+        print(f"Accuracy ({t_type}):", accuracy_score(y_test, y_pred_transformed))
 
     # Save model
     save_pickle({'kmeans': kmeans, 'svm': svc, 'label_encoder': le}, 'bovw_model.pkl')
 
-# 🎯 Accuracy (gaussian_noise): 0.37780207763805357
-# 🎯 Accuracy (brightness): 0.3466375068343357
-# 🎯 Accuracy (hflip): 0.3870967741935484
-# 🎯 Accuracy (rotate): 0.33406232914160744
-# 🎯 Accuracy (Original): 0.3969382176052488
+# OG Accuracy: 0.3969382176052488
+# Accuracy (rotate): 0.33406232914160744
+# Accuracy (hflip): 0.3870967741935484
+# Accuracy (brightness): 0.3466375068343357
+# Accuracy (gaussian_noise): 0.37780207763805357
