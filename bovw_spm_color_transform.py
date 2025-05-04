@@ -11,27 +11,6 @@ from sklearn.svm import LinearSVC
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import classification_report, accuracy_score
 
-# Save & Load Helpers
-def save_pickle(obj, path):
-    with open(path, 'wb') as f:
-        pickle.dump(obj, f)
-
-def load_pickle(path):
-    with open(path, 'rb') as f:
-        return pickle.load(f)
-
-# RootSIFT
-def rootsift(descriptors):
-    eps = 1e-7
-    desc_l1 = descriptors / (np.linalg.norm(descriptors, ord=1, axis=1, keepdims=True) + eps)
-    return np.sqrt(desc_l1)
-
-def compute_color_hist(image_bgr, bins=(8,8,8)):
-    hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
-    hist = cv2.calcHist([hsv], [0,1,2], None, bins, [0,180,0,256,0,256])
-    hist = hist.flatten().astype(np.float32)
-    return hist / (hist.sum() + 1e-7)
-
 # Transformation Helpers
 def apply_transformation(image_path, transform_type):
     image = Image.open(image_path).convert('RGB')
@@ -47,6 +26,19 @@ def apply_transformation(image_path, transform_type):
         noisy = np.clip(img_np + noise, 0, 255).astype(np.uint8)
         image = Image.fromarray(noisy)
     return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
+
+# RootSIFT
+def rootsift(descriptors):
+    eps = 1e-7
+    desc_l1 = descriptors / (np.linalg.norm(descriptors, ord=1, axis=1, keepdims=True) + eps)
+    return np.sqrt(desc_l1)
+
+# Color Histogram
+def compute_color_hist(image_bgr, bins=(8,8,8)):
+    hsv = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2HSV)
+    hist = cv2.calcHist([hsv], [0,1,2], None, bins, [0,180,0,256,0,256])
+    hist = hist.flatten().astype(np.float32)
+    return hist / (hist.sum() + 1e-7)
 
 # Spatial Pyramid BOW with Soft Assignment
 class SoftSPMBOW:
@@ -123,6 +115,15 @@ class SoftSPMBOW:
 
     def apply_idf(self, X):
         return normalize(X * self.idf, norm='l2')
+
+# Save & Load Helpers
+def save_pickle(obj, path):
+    with open(path, 'wb') as f:
+        pickle.dump(obj, f)
+
+def load_pickle(path):
+    with open(path, 'rb') as f:
+        return pickle.load(f)
 
 # Main Script
 if __name__ == '__main__':
