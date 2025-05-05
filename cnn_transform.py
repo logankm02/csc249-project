@@ -16,7 +16,7 @@ from pathlib import Path
 # Transformation Helpers
 def get_transformed_image(image, transform_type='rotate'):
     if transform_type == 'rotate':
-        return image.rotate(30)  # Rotate by 30 degrees
+        return image.rotate(30)
     elif transform_type == 'hflip':
         return image.transpose(Image.FLIP_LEFT_RIGHT)
     elif transform_type == 'brightness':
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     print("\nEvaluating on transformed test images...")
 
     for t_type in transform_types:
-        print(f"\n🔄 Testing with transformation: {t_type}")
+        print(f"\nTesting with transformation: {t_type}")
         X_test_transformed = []
         for path in tqdm(path_test, desc=f"Transforming ({t_type})"):
             try:
@@ -124,7 +124,7 @@ if __name__ == "__main__":
         X_test_transformed = np.array(X_test_transformed)
         y_pred_transformed = svc.predict(X_test_transformed)
         print(classification_report(y_test, y_pred_transformed, target_names=le.classes_))
-        print(f"🎯 Accuracy ({t_type}):", accuracy_score(y_test, y_pred_transformed))
+        print(f"Accuracy ({t_type}):", accuracy_score(y_test, y_pred_transformed))
 
     # Save model
     save_pickle({'svm': svc, 'label_encoder': le}, 'resnet_svm_model.pkl')

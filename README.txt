@@ -1,8 +1,16 @@
 Ashton Prescott - apresco3@u.rochester.edu
 Logan Kinajil-Moran - lkinajil@u.rochester.edu
 
-Requirements:
+Files contained in zip folder:
+caltech-101
+README.txt
+requirements.txt
+bovw_spm_color_transform.py
+bovw_spm_transform.py
+bovw_transform.py
+cnn_transform.py
 
+Requirements:
 Install with: pip install -r requirements.txt
 
 Data:
